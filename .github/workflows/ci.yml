@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      FIRMWARE_URL:
+        description: 'Firmware URL'
+        required: true
+
+      TARGET_IMAGE:
+        description: 'Target Image'
+        required: true
+        type: choice
+        options:
+          - 'boot'
+          - 'vendor_boot'
+          - 'vbmeta'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Git identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Run script
+        env:
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          FIRMWARE_URL: ${{ inputs.FIRMWARE_URL }}
+          TARGET_IMAGE: ${{ inputs.TARGET_IMAGE }}
+        run: |
+          chmod +x *.sh
+          bash ci.sh
